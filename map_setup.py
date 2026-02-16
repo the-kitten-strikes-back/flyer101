@@ -34,7 +34,6 @@ base_destroyed = False
 # Plane Setup
 models = ['models/f16', 'models/tinker', 'models/ac130', 'models/f167', 'models/xwing']
 plane = Entity(model=models[3], scale=0.09, rotation=(0, 0, 0), position=((10579.429, 1.2, 5094.8447)), collider='mesh')
-plane.look_at(enemy_base)
 camera_offset = Vec3(0, 3, 10)
 cockpit_ui = Entity(parent=camera.ui, model='quad', texture=cockpit_texture, scale=(3, 2), position=plane.position, visible=False)
 cockpit_model = Entity(parent=camera, visible=False, enabled=False)
@@ -206,4 +205,5 @@ horizon = Entity(model='quad', color=color.blue, scale=(0.2, 0.05), position=(0,
 # Flight Variables
 throttle, max_speed, lift_force, gravity = 0.0, 50, 0.0, 0.21
 models_index, autopilot, airport_index = 3, False, 0
+
 
