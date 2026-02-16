@@ -7,7 +7,7 @@ def spawn_enemies(count=5):
         
         spawn_pos = plane.position + Vec3(
             math.sin(math.radians(angle)) * distance_away,
-            random.uniform(1500, 4000),
+            random.uniform(4000, 7000),
             math.cos(math.radians(angle)) * distance_away
         )
         enemy = EnemyPlane(position=spawn_pos)
@@ -157,4 +157,5 @@ def trigger_mission_complete():
     game_over_title.visible = True
     game_over_sub.visible = True
     restart_text.visible = True
+
     quit_text.visible = True
