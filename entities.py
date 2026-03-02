@@ -97,11 +97,12 @@ class EnemyPlane(Entity):
             **kwargs
         )
         self.health = 50
-        self.speed = random.uniform(200, 300)  # Balanced speed
+        ai_scale = difficulty_scale if 'difficulty_scale' in globals() else 1.0
+        self.speed = random.uniform(100, 285) * (0.85 + ai_scale * 0.25)
         self.target = None
         self.state = 'patrol'  # patrol, engage, circle, evade
         self.last_shot_time = 0
-        self.shot_cooldown = random.uniform(15, 35)  # Longer cooldown - less spam
+        self.shot_cooldown = random.uniform(25, 50) / max(0.75, ai_scale)  # Time between shots
         self.ai_timer = 0
         
         # Initial patrol point relative to spawn
@@ -120,14 +121,16 @@ class EnemyPlane(Entity):
         dist_to_player = distance(self.position, plane.position)
         
         # State machine with better distance thresholds
-        if dist_to_player > 2000:
+        if dist_to_player > 3000:
             self.state = 'patrol'
-        elif dist_to_player > 1125:
+        elif dist_to_player > 2000:
             self.state = 'engage'
-        elif dist_to_player > 600:
+        elif dist_to_player > 1000:
             self.state = 'circle'  # Circle around player to stay in view
+        elif dist_to_player < 300:
+            self.state = 'evade'  #RUN!!
         else:
-            self.state = 'evade'  # Too close, break away
+            self.state = 'engage'  # Default to engage in mid-range
         
         # Behavior based on state
         if self.state == 'patrol':

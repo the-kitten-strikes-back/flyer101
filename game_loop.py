@@ -5,17 +5,42 @@ mission_complete = False
 def update():
     
     global throttle, lift_force, speed, vertical_velocity, player_health, y, mission_complete, initial_enemy_count, game_paused, base_destroyed
+    global mouse_pitch, mouse_yaw, completed_objectives, highest_altitude
+
+    mx = mouse.velocity[0]
+    my = mouse.velocity[1]
+
+    # Ignore tiny deltas to reduce micro-jitter from high polling mice.
+    if abs(mx) < 0.001:
+        mx = 0
+    if abs(my) < 0.001:
+        my = 0
+
+    # Keep input feel stable across frame rates.
+    input_scale = mouse_sensitivity * time.dt * 60
+    mouse_yaw += mx * input_scale
+    mouse_pitch -= my * input_scale
+
+    # Clamp look range
+    mouse_yaw = clamp(mouse_yaw, -max_look_angle, max_look_angle)
+    mouse_pitch = clamp(mouse_pitch, -max_look_angle, max_look_angle)
+
+    # Return to center only when the player isn't actively moving the mouse.
+    if mx == 0:
+        mouse_yaw = lerp(mouse_yaw, 0, time.dt * 0.8)
+    if my == 0:
+        mouse_pitch = lerp(mouse_pitch, 0, time.dt * 0.8)
     displayed.color = color.rgb(
-        0,
-        random.randint(230, 255),
-        random.randint(80, 120)
-    )
+            0,
+            random.randint(230, 255),
+            random.randint(80, 120)
+        )
     if game_paused:
         return
-    if held_keys['a']: plane.rotation_y -= 1
-    if held_keys['d']: plane.rotation_y += 1
-    if held_keys['w']: plane.rotation_x -= 1
-    if held_keys['s']: plane.rotation_x += 1
+    if held_keys['a']: plane.rotation_y -= 2.3
+    if held_keys['d']: plane.rotation_y += 2.3
+    if held_keys['w']: plane.rotation_x -= 2.3
+    if held_keys['s']: plane.rotation_x += 2.3
     # Speed Calculation
     Lift, Drag, Thrust, Weight = calculate_forces(plane.rotation_x + 90, speed, plane.y, throttle)
     Lift = -Lift
@@ -144,6 +169,9 @@ def update():
 
     if "completed_objectives" not in globals():
         completed_objectives = set()
+    if "highest_altitude" not in globals():
+        highest_altitude = plane.y
+    highest_altitude = max(highest_altitude, plane.y)
 
     mission_constraints = {}
 
@@ -153,28 +181,28 @@ def update():
         desc = obj.get("description", "Unnamed Objective")
         obj_type = obj.get("type")
 
-        completed = False
+        completed = desc in completed_objectives
 
-        if obj_type == "destroy":
+        if not completed and obj_type == "destroy":
             target = obj.get("amount", 0)
             destroyed_count = initial_enemy_count - len(enemy_planes)
             completed = destroyed_count >= target
 
-        elif obj_type == "survive":
+        elif not completed and obj_type == "survive":
             duration = obj.get("duration", 0)
             completed = (
                 player_health > 0 and
                 time.time() - mission_start_time >= duration
             )
 
-        elif obj_type == "reach_altitude":
+        elif not completed and obj_type == "reach_altitude":
             required_altitude = obj.get("target", 0)
-            completed = plane.y >= required_altitude
+            completed = highest_altitude >= required_altitude
 
-        elif obj_type == "destroy_base":
+        elif not completed and obj_type == "destroy_base":
             completed = base_destroyed
 
-        elif obj_type == "destroy_in_time":
+        elif not completed and obj_type == "destroy_in_time":
             target = obj.get("amount", 0)
             time_limit = obj.get("time_limit", 0)
 
@@ -187,14 +215,11 @@ def update():
             else:
                 completed = destroyed_count >= target
 
+        mission_constraints[desc] = completed
 
-
-
-            mission_constraints[desc] = completed
-
-            if completed and desc not in completed_objectives:
-                print(f"Objective completed: {desc}")
-                completed_objectives.add(desc)
+        if completed and desc not in completed_objectives:
+            print(f"Objective completed: {desc}")
+            completed_objectives.add(desc)
 
     if (
         mission_constraints and

@@ -1,0 +1,20 @@
+{
+  "completed_nodes": [
+    "q1_takeoff"
+  ],
+  "node_stars": {
+    "q1_takeoff": 3
+  },
+  "challenge_stars": {},
+  "unlocked_aircraft": [
+    "f16",
+    "f167"
+  ],
+  "selected_aircraft": "f167",
+  "upgrades": {
+    "radar_quality": 1
+  },
+  "cosmetics": [
+    "rookie_marking"
+  ]
+}

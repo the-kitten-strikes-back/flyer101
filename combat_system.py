@@ -7,7 +7,7 @@ def spawn_enemies(count=5):
         
         spawn_pos = plane.position + Vec3(
             math.sin(math.radians(angle)) * distance_away,
-            random.uniform(1500, 4000),
+            random.uniform(3000, 5000),
             math.cos(math.radians(angle)) * distance_away
         )
         enemy = EnemyPlane(position=spawn_pos)
@@ -144,6 +144,9 @@ editor_cam = EditorCamera(enabled=False)
 editor_cam.ignore_paused = True
 
 def trigger_mission_complete():
+    if 'update_progression_on_win' in globals():
+        update_progression_on_win()
+
     # Freeze the world
     time.scale = 0
 

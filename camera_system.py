@@ -25,6 +25,8 @@ def runcamera(y=4):
         -camera_offset.y,
         math.cos(math.radians(plane.rotation_y)) * camera_offset.z
     )
+    bank_factor = clamp(plane.rotation_z / 45, -1, 1)
+    desired_pos += plane.right * (bank_factor * 0.8)
 
     g_force = Lift / (mass * g) if mass > 0 and 'Lift' in globals() else 1
 
@@ -38,14 +40,13 @@ def runcamera(y=4):
         time.dt * follow_speed
     )
 
-    camera.look_at(
-        lerp(camera.world_position + camera.forward * 10,
-             plane.world_position,
-             time.dt * y)
-    )
+    target_position = plane.world_position + plane.forward * 40 + plane.up * 2
 
-    bank_factor = clamp(plane.rotation_z / 45, -1, 1)
-    camera.x += bank_factor * 0.02
+    camera.look_at(target_position)
+
+    # Apply mouse look offset AFTER look_at
+    camera.rotation_x += mouse_pitch * 0.5
+    camera.rotation_y += mouse_yaw * 0.5
 
     base_fov = 90
     max_extra_fov = 20
@@ -56,10 +57,11 @@ def runcamera(y=4):
     camera.fov = lerp(camera.fov, target_fov, time.dt * 2)
 
     if speed > 400:
-        shake_intensity = (speed - 400) / 2000
+        shake_intensity = (speed - 400) / 4000
+        shake_t = time.time() * 35
         camera.position += Vec3(
-            random.uniform(-shake_intensity, shake_intensity),
-            random.uniform(-shake_intensity, shake_intensity),
+            math.sin(shake_t) * shake_intensity,
+            math.cos(shake_t * 1.3) * shake_intensity * 0.6,
             0
         )
 

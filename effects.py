@@ -3,7 +3,7 @@ def create_explosion(position, num_particles=20, speed=5, lifetime=1):
         particle = Entity(
             model='sphere',
             color=color.orange,
-            scale=0.2,
+            scale=10,
             position=position
         )
         direction = Vec3(random.uniform(-1,1), random.uniform(0,1), random.uniform(-1,1)).normalized()
@@ -43,7 +43,7 @@ def explosion_3d(position, fireball_scale=4, debris_count=25, smoke_time=2):
     fireball = Entity(
         model='sphere',
         color=color.orange,
-        scale=0.1,
+        scale=2.5,
         position=position,
         emissive=True
     )
@@ -60,7 +60,7 @@ def explosion_3d(position, fireball_scale=4, debris_count=25, smoke_time=2):
     for i in range(debris_count):
         debris = Entity(
             model='cube',
-            scale=0.1,
+            scale=2.5,
             color=color.rgb(180, 80, 20),
             position=position,
         )
@@ -79,7 +79,7 @@ def explosion_3d(position, fireball_scale=4, debris_count=25, smoke_time=2):
     smoke = Entity(
         model='sphere',
         color=color.gray,
-        scale=0.5,
+        scale=10,
         position=position
     )
     smoke.animate_scale(6, duration=smoke_time, curve=curve.out_expo)
